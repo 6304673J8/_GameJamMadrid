@@ -10,27 +10,34 @@ public class ClickAndAutoThrow : MonoBehaviour
     [SerializeField] private GameObject aimArrow;
     [SerializeField] private Image forceBar;
 
-    [Header("Throw Settings")]
+    [Header("Arrow")]
+    [SerializeField] private float rotationSpeed = 180f;
+
+    [Header("Throw Force")]
     [SerializeField] private float minThrowForce = 3f;
     [SerializeField] private float maxThrowForce = 20f;
     [SerializeField] private float chargeTime = 2f;
 
-    [Header("Stopping Settings")]
+    [Header("Physics")]
     [SerializeField] private float stopSpeed = 0.15f;
     [SerializeField] private float stopTime = 0.5f;
 
-    [Header("Arrow Settings")]
-    [SerializeField] private float arrowHeight = 0.1f;
-
     private Rigidbody rb;
 
-    private bool isCharging = false;
-    private bool isFlying = false;
+    private enum State
+    {
+        Idle,
+        SelectingDirection,
+        Charging,
+        Flying
+    }
 
-    private Vector3 aimDirection;
+    private State currentState = State.Idle;
 
     private float chargeAmount = 0f;
     private float stopTimer = 0f;
+
+    private Vector3 throwDirection;
 
     private void Awake()
     {
@@ -40,6 +47,7 @@ public class ClickAndAutoThrow : MonoBehaviour
         {
             aimArrow.SetActive(false);
         }
+
         if (forceBar != null)
         {
             forceBar.gameObject.SetActive(false);
@@ -51,117 +59,154 @@ public class ClickAndAutoThrow : MonoBehaviour
     {
         HandleInput();
 
-        if (isCharging)
+        if (currentState == State.SelectingDirection)
         {
-            UpdateAim();
-            UpdateCharge();
+            RotateArrow();
+        }
+
+        if (currentState == State.Charging)
+        {
+            ChargeForce();
         }
 
         CheckIfStopped();
     }
+
+    // =========================================================
+    // INPUT
+    // =========================================================
 
     private void HandleInput()
     {
         if (Mouse.current == null)
             return;
 
+        // -----------------------------------------------------
+        // MOUSE BUTTON PRESSED
+        // -----------------------------------------------------
+
         if (Mouse.current.leftButton.wasPressedThisFrame)
         {
-            if (!isFlying && !isCharging)
+            // First click
+            if (currentState == State.Idle)
+            {
+                StartDirectionSelection();
+            }
+
+            // Second click
+            else if (currentState == State.SelectingDirection)
             {
                 StartCharging();
             }
         }
 
+        // -----------------------------------------------------
+        // MOUSE BUTTON RELEASED
+        // -----------------------------------------------------
+
         if (Mouse.current.leftButton.wasReleasedThisFrame)
         {
-            if (isCharging)
+            if (currentState == State.Charging)
             {
                 Throw();
             }
         }
     }
 
-    private void StartCharging()
-    {
-        isCharging = true;
+    // =========================================================
+    // STEP 1: START ROTATING ARROW
+    // =========================================================
 
-        chargeAmount = 0f;
+    private void StartDirectionSelection()
+    {
+        currentState = State.SelectingDirection;
 
         if (aimArrow != null)
         {
             aimArrow.SetActive(true);
-        }
 
+            // Put arrow above the player
+            aimArrow.transform.position =
+                transform.position + Vector3.up * 0.1f;
+
+            // Start from a known direction
+            aimArrow.transform.rotation =
+                Quaternion.LookRotation(Vector3.forward);
+        }
+    }
+
+    // =========================================================
+    // ARROW ROTATION
+    // =========================================================
+
+    private void RotateArrow()
+    {
+        if (aimArrow == null)
+            return;
+
+        // Rotate around the Y axis
+        aimArrow.transform.Rotate(
+            Vector3.up,
+            rotationSpeed * Time.deltaTime,
+            Space.World
+        );
+    }
+
+    // =========================================================
+    // STEP 2: LOCK DIRECTION AND START CHARGING
+    // =========================================================
+
+    private void StartCharging()
+    {
+        currentState = State.Charging;
+
+        // Save the direction the arrow is currently pointing
+        throwDirection = aimArrow.transform.forward;
+
+        // Make sure we stay horizontal
+        throwDirection.y = 0f;
+        throwDirection.Normalize();
+
+        chargeAmount = 0f;
+
+        // Show force bar
         if (forceBar != null)
         {
             forceBar.gameObject.SetActive(true);
             forceBar.fillAmount = 0f;
         }
-    }
 
-    private void UpdateAim()
-    {
-        if (Camera.main == null)
-            return;
-
-        Ray ray = Camera.main.ScreenPointToRay(
-            Mouse.current.position.ReadValue()
-        );
-
-        // Horizontal plane at player's position
-        Plane groundPlane = new Plane(
-            Vector3.up,
-            transform.position
-        );
-
-        if (!groundPlane.Raycast(ray, out float distance))
-            return;
-
-        Vector3 mouseWorldPosition =
-            ray.GetPoint(distance);
-
-        Vector3 direction =
-            mouseWorldPosition - transform.position;
-
-        // Ignore Y axis
-        direction.y = 0f;
-
-        if (direction.sqrMagnitude < 0.01f)
-            return;
-
-        aimDirection = direction.normalized;
-
-        // Position arrow above player
+        // Stop the arrow visually
+        // It remains visible while charging.
         if (aimArrow != null)
         {
-            aimArrow.transform.position =
-                transform.position +
-                Vector3.up * arrowHeight;
-
-            // Point arrow toward mouse
-            aimArrow.transform.rotation =
-                Quaternion.LookRotation(aimDirection);
+            aimArrow.SetActive(true);
         }
     }
 
-    private void UpdateCharge()
+    // =========================================================
+    // STEP 3: CHARGE FORCE
+    // =========================================================
+
+    private void ChargeForce()
     {
         chargeAmount += Time.deltaTime / chargeTime;
 
         chargeAmount = Mathf.Clamp01(chargeAmount);
 
-        // Update UI bar
         if (forceBar != null)
         {
             forceBar.fillAmount = chargeAmount;
         }
     }
 
+    // =========================================================
+    // STEP 4: RELEASE = THROW
+    // =========================================================
+
     private void Throw()
     {
-        isCharging = false;
-        isFlying = true;
+        currentState = State.Flying;
 
         // Hide arrow
         if (aimArrow != null)
@@ -175,20 +220,20 @@ public class ClickAndAutoThrow : MonoBehaviour
             forceBar.gameObject.SetActive(false);
         }
 
-        // Calculate force
+        // Calculate force from charge
         float throwForce = Mathf.Lerp(
             minThrowForce,
             maxThrowForce,
             chargeAmount
         );
 
-        // Reset existing movement
+        // Reset current movement
         rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
 
-        // Apply impulse
+        // Launch player
         rb.AddForce(
-            aimDirection * throwForce,
+            throwDirection * throwForce,
             ForceMode.Impulse
         );
 
@@ -196,12 +241,15 @@ public class ClickAndAutoThrow : MonoBehaviour
         stopTimer = 0f;
     }
 
+    // =========================================================
+    // DETECT WHEN PLAYER STOPS
+    // =========================================================
+
     private void CheckIfStopped()
     {
-        if (!isFlying)
+        if (currentState != State.Flying)
             return;
 
-        // Rigidbody speed
         float speed = rb.linearVelocity.magnitude;
 
         if (speed < stopSpeed)
@@ -214,12 +262,18 @@ public class ClickAndAutoThrow : MonoBehaviour
             }
         }
         else
+        {
             stopTimer = 0f;
+        }
     }
+
+    // =========================================================
+    // RETURN TO IDLE
+    // =========================================================
 
     private void StopFlying()
     {
-        isFlying = false;
+        currentState = State.Idle;
 
         rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
