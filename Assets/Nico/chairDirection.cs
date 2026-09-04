@@ -12,9 +12,11 @@ public class chairDirection : MonoBehaviour
 
     private Transform playerTransform;
 
+    // Indica si ya hemos elegido la dirección
+    private bool directionSelected = false;
+
     void Start()
     {
-        // El objeto que tiene este script debe ser hijo del jugador
         playerTransform = transform.parent;
 
         if (playerTransform == null)
@@ -27,33 +29,36 @@ public class chairDirection : MonoBehaviour
     {
         if (playerTransform == null) return;
 
-        // 1. Hacemos girar el ángulo
-        angle += rotationSpeed * Time.deltaTime;
-
-        // Evitamos que el ángulo crezca indefinidamente
-        if (angle >= 360f)
+        // Mientras NO hayamos elegido dirección, el indicador gira
+        if (!directionSelected)
         {
-            angle -= 360f;
+            angle += rotationSpeed * Time.deltaTime;
+
+            if (angle >= 360f)
+            {
+                angle -= 360f;
+            }
+
+            float x = Mathf.Cos(angle * Mathf.Deg2Rad) * radius;
+            float z = Mathf.Sin(angle * Mathf.Deg2Rad) * radius;
+
+            transform.localPosition = new Vector3(x, 0, z);
         }
 
-        // 2. Calculamos la posición del indicador
-        float x = Mathf.Cos(angle * Mathf.Deg2Rad) * radius;
-        float z = Mathf.Sin(angle * Mathf.Deg2Rad) * radius;
-
-        // 3. Movemos el indicador alrededor del jugador
-        transform.localPosition = new Vector3(x, 0, z);
-
-        // 4. Comprobamos si existe el ratón
         Mouse mouse = Mouse.current;
 
         if (mouse == null) return;
 
-        // 5. Click izquierdo = elegir dirección
-        if (mouse.leftButton.wasPressedThisFrame)
+        // Click izquierdo
+        if (mouse.leftButton.wasPressedThisFrame && !directionSelected)
         {
+            // Calculamos la dirección
             direction = transform.position - playerTransform.position;
 
             direction.Normalize();
+
+            // Detenemos el indicador
+            directionSelected = true;
 
             Debug.Log("Dirección elegida: " + direction);
         }
