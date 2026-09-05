@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem; // Required for the new Input System
 
-
 public class crawlPlayerMovement : MonoBehaviour
 {
     [Header("Movement Settings")]
@@ -9,7 +8,6 @@ public class crawlPlayerMovement : MonoBehaviour
     public float turnDegrees = 15f;
 
     [Header("Anti-Spam Settings")]
-    // Short delay in seconds before the player can crawl again (e.g., 0.2 seconds)
     public float inputCooldown = 0.2f; 
     private float nextAllowedInputTime = 0f;
 
@@ -19,28 +17,28 @@ public class crawlPlayerMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         
+        // Configurar la fricción lineal si está por defecto
         if (rb.linearDamping == 0)
         {
-            rb.linearDamping = 5f; // Ensures friction is applied
+            rb.linearDamping = 5f; 
         }
+
+        // Evitar que el personaje se vuelque o rote en ejes no deseados al chocar
+        rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
     }
 
     void Update()
     {
-        // Check if the short cooldown delay has passed
         if (Time.time < nextAllowedInputTime) return;
 
         Keyboard keyboard = Keyboard.current;
         if (keyboard == null) return;
 
-        // Read the exact status of both keys this frame
         bool pressedA = keyboard.aKey.wasPressedThisFrame;
         bool pressedD = keyboard.dKey.wasPressedThisFrame;
 
-        // Block input if BOTH keys are pressed at the exact same time
         if (pressedA && pressedD) return;
 
-        // Process only one key at a time
         if (pressedA)
         {
             Crawl(-turnDegrees);
@@ -55,16 +53,15 @@ public class crawlPlayerMovement : MonoBehaviour
 
     void Crawl(float turnAngle)
     {
-        // 1. Apply instant rotation on the Y axis
+        // 1. Aplicar rotación en el eje Y
         transform.Rotate(0f, turnAngle, 0f);
 
-        // 2. Apply a strong forward impulse
+        // 2. Aplicar impulso hacia adelante
         rb.AddForce(transform.forward * forwardForce, ForceMode.Impulse);
     }
 
     void TriggerCooldown()
     {
-        // Set the timestamp for when the player is allowed to press a key again
         nextAllowedInputTime = Time.time + inputCooldown;
     }
 }
