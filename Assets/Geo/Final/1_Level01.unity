@@ -6255,8 +6255,9 @@ GameObject:
   - component: {fileID: 1308744210}
   - component: {fileID: 1308744209}
   - component: {fileID: 1308744208}
+  - component: {fileID: 1308744211}
   m_Layer: 0
-  m_Name: Cube
+  m_Name: LevelTransition
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6306,6 +6307,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1308744211
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1308744207}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5461c27488b7504f910cdde1f146bb2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ToNextLevel
+  nextSceneToLoad: 0
 --- !u!4 &1309689201 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7288816506164657790, guid: 50e9d694213653a4e8d1111b9281bbaf, type: 3}
@@ -8365,7 +8379,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2241163711708977672, guid: 9565a4d61611e7e47ba4c9b3e3426eb5, type: 3}
       propertyPath: field of view
-      value: 40
+      value: 41.2
       objectReference: {fileID: 0}
     - target: {fileID: 2241163711708977672, guid: 9565a4d61611e7e47ba4c9b3e3426eb5, type: 3}
       propertyPath: far clip plane
@@ -9778,7 +9792,7 @@ MonoBehaviour:
     LookAtTarget: {fileID: 0}
     CustomLookAtTarget: 0
   Lens:
-    FieldOfView: 40
+    FieldOfView: 41.2
     OrthographicSize: 10
     NearClipPlane: 0.1
     FarClipPlane: 5000
