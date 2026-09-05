@@ -26,15 +26,15 @@ public class PlayerDirection : MonoBehaviour
 
     private enum State
     {
-        Idle,
         SelectingDirection,
         Charging,
         Flying
     }
 
-    private State currentState = State.Idle;
+    private State currentState = State.SelectingDirection;
 
     private float chargeAmount = 0f;
+    private bool chargingUp = true;
     private float stopTimer = 0f;
 
     private Vector3 throwDirection;
@@ -43,11 +43,19 @@ public class PlayerDirection : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
 
+        // La flecha empieza visible y girando
         if (aimArrow != null)
         {
-            aimArrow.SetActive(false);
+            aimArrow.SetActive(true);
+
+            aimArrow.transform.position =
+                transform.position + Vector3.up * 0.1f;
+
+            aimArrow.transform.rotation =
+                Quaternion.LookRotation(Vector3.forward);
         }
 
+        // La barra empieza escondida
         if (forceBar != null)
         {
             forceBar.gameObject.SetActive(false);
@@ -59,11 +67,13 @@ public class PlayerDirection : MonoBehaviour
     {
         HandleInput();
 
+        // La flecha gira hasta el primer clic
         if (currentState == State.SelectingDirection)
         {
             RotateArrow();
         }
 
+        // La barra sube y baja después del primer clic
         if (currentState == State.Charging)
         {
             ChargeForce();
@@ -81,63 +91,26 @@ public class PlayerDirection : MonoBehaviour
         if (Mouse.current == null)
             return;
 
-        // -----------------------------------------------------
-        // MOUSE BUTTON PRESSED
-        // -----------------------------------------------------
+        // Solo nos interesa CUANDO SE HACE CLICK
+        if (!Mouse.current.leftButton.wasPressedThisFrame)
+            return;
 
-        if (Mouse.current.leftButton.wasPressedThisFrame)
+        // =====================================================
+        // CLICK 1 → FIJAR DIRECCIÓN
+        // =====================================================
+
+        if (currentState == State.SelectingDirection)
         {
-            // Primer clic → empezar a elegir dirección
-            if (currentState == State.Idle)
-            {
-                StartDirectionSelection();
-            }
-
-            // Segundo clic → fijar dirección y empezar medidor
-            else if (currentState == State.SelectingDirection)
-            {
-                StartCharging();
-            }
-
-            // Tercer clic → elegir potencia y lanzar
-            else if (currentState == State.Charging)
-            {
-                Throw();
-            }
+            StartCharging();
         }
 
-        // -----------------------------------------------------
-        // MOUSE BUTTON RELEASED
-        // -----------------------------------------------------
+        // =====================================================
+        // CLICK 2 → FIJAR POTENCIA Y LANZAR
+        // =====================================================
 
-        if (Mouse.current.leftButton.wasReleasedThisFrame)
+        else if (currentState == State.Charging)
         {
-            if (currentState == State.Charging)
-            {
-                Throw();
-            }
-        }
-    }
-
-    // =========================================================
-    // STEP 1: START ROTATING ARROW
-    // =========================================================
-
-    private void StartDirectionSelection()
-    {
-        currentState = State.SelectingDirection;
-
-        if (aimArrow != null)
-        {
-            aimArrow.SetActive(true);
-
-            // Put arrow above the player
-            aimArrow.transform.position =
-                transform.position + Vector3.up * 0.1f;
-
-            // Start from a known direction
-            aimArrow.transform.rotation =
-                Quaternion.LookRotation(Vector3.forward);
+            Throw();
         }
     }
 
@@ -150,7 +123,6 @@ public class PlayerDirection : MonoBehaviour
         if (aimArrow == null)
             return;
 
-        // Rotate around the Y axis
         aimArrow.transform.Rotate(
             Vector3.up,
             rotationSpeed * Time.deltaTime,
@@ -159,47 +131,65 @@ public class PlayerDirection : MonoBehaviour
     }
 
     // =========================================================
-    // STEP 2: LOCK DIRECTION AND START CHARGING
+    // CLICK 1: LOCK DIRECTION + START CHARGING
     // =========================================================
 
     private void StartCharging()
     {
-        currentState = State.Charging;
-
-        // Save the direction the arrow is currently pointing
+        // Guardamos la dirección actual de la flecha
         throwDirection = aimArrow.transform.forward;
 
-        // Make sure we stay horizontal
+        // Nos aseguramos de que sea horizontal
         throwDirection.y = 0f;
         throwDirection.Normalize();
 
+        // Reiniciamos la potencia
         chargeAmount = 0f;
+        chargingUp = true;
 
-        // Show force bar
+        // Cambiamos al estado de carga
+        currentState = State.Charging;
+
+        // Mostramos la barra
         if (forceBar != null)
         {
             forceBar.gameObject.SetActive(true);
             forceBar.fillAmount = 0f;
         }
 
-        // Stop the arrow visually
-        // It remains visible while charging.
-        if (aimArrow != null)
-        {
-            aimArrow.SetActive(true);
-        }
+        Debug.Log("Dirección elegida: " + throwDirection);
     }
 
     // =========================================================
-    // STEP 3: CHARGE FORCE
+    // POWER BAR: UP AND DOWN
     // =========================================================
 
     private void ChargeForce()
     {
-        chargeAmount += Time.deltaTime / chargeTime;
+        if (chargingUp)
+        {
+            // La barra SUBE
+            chargeAmount += Time.deltaTime / chargeTime;
 
-        chargeAmount = Mathf.Clamp01(chargeAmount);
+            if (chargeAmount >= 1f)
+            {
+                chargeAmount = 1f;
+                chargingUp = false;
+            }
+        }
+        else
+        {
+            // La barra BAJA
+            chargeAmount -= Time.deltaTime / chargeTime;
 
+            if (chargeAmount <= 0f)
+            {
+                chargeAmount = 0f;
+                chargingUp = true;
+            }
+        }
+
+        // Actualizamos la barra visual
         if (forceBar != null)
         {
             forceBar.fillAmount = chargeAmount;
@@ -207,42 +197,51 @@ public class PlayerDirection : MonoBehaviour
     }
 
     // =========================================================
-    // STEP 4: RELEASE = THROW
+    // CLICK 2: LOCK POWER + THROW
     // =========================================================
 
     private void Throw()
     {
-        currentState = State.Flying;
+        // Guardamos el porcentaje antes de cambiar nada
+        float powerPercentage = chargeAmount * 100f;
 
-        // Hide arrow
-        if (aimArrow != null)
-        {
-            aimArrow.SetActive(false);
-        }
+        Debug.Log("Potencia elegida: " + powerPercentage.ToString("F1") + "%");
 
-        // Hide force bar
-        if (forceBar != null)
-        {
-            forceBar.gameObject.SetActive(false);
-        }
-
-        // Calculate force from charge
+        // Convertimos el porcentaje en fuerza real
         float throwForce = Mathf.Lerp(
             minThrowForce,
             maxThrowForce,
             chargeAmount
         );
 
-        // Reset current movement
+        Debug.Log("Fuerza del lanzamiento: " + throwForce.ToString("F2"));
+
+        // Cambiamos al estado de vuelo
+        currentState = State.Flying;
+
+        // Escondemos la flecha
+        if (aimArrow != null)
+        {
+            aimArrow.SetActive(false);
+        }
+
+        // Escondemos la barra
+        if (forceBar != null)
+        {
+            forceBar.gameObject.SetActive(false);
+        }
+
+        // Detenemos cualquier movimiento anterior
         rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
 
-        // Launch player
+        // LANZAMOS
         rb.AddForce(
             throwDirection * throwForce,
             ForceMode.Impulse
         );
 
+        // Reiniciamos
         chargeAmount = 0f;
         stopTimer = 0f;
     }
@@ -274,16 +273,30 @@ public class PlayerDirection : MonoBehaviour
     }
 
     // =========================================================
-    // RETURN TO IDLE
+    // RETURN TO DIRECTION SELECTION
     // =========================================================
 
     private void StopFlying()
     {
-        currentState = State.Idle;
-
         rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
 
         stopTimer = 0f;
+
+        // Volvemos a permitir elegir dirección
+        currentState = State.SelectingDirection;
+
+        // Mostramos la flecha otra vez
+        if (aimArrow != null)
+        {
+            aimArrow.SetActive(true);
+
+            aimArrow.transform.position =
+                transform.position + Vector3.up * 0.1f;
+        }
+
+        // Reiniciamos la potencia
+        chargeAmount = 0f;
+        chargingUp = true;
     }
 }
