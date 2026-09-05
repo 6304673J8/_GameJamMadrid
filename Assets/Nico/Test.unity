@@ -131,7 +131,7 @@ GameObject:
   - component: {fileID: 75743227}
   - component: {fileID: 75743226}
   - component: {fileID: 75743225}
-  m_Layer: 0
+  m_Layer: 4
   m_Name: Plane
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -227,7 +227,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -0}
-  m_LocalScale: {x: 5, y: 5, z: 5}
+  m_LocalScale: {x: 6.6568, y: 6.6568, z: 6.6568}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -439,11 +439,11 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_NormalColor: {r: 0, g: 0, b: 0, a: 1}
+    m_HighlightedColor: {r: 1, g: 1, b: 1, a: 1}
+    m_PressedColor: {r: 1, g: 1, b: 1, a: 1}
+    m_SelectedColor: {r: 1, g: 1, b: 1, a: 1}
+    m_DisabledColor: {r: 1, g: 1, b: 1, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -465,7 +465,7 @@ MonoBehaviour:
   m_MinValue: 0
   m_MaxValue: 1
   m_WholeNumbers: 0
-  m_Value: 0.5
+  m_Value: 0
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -741,7 +741,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!136 &930957190
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -1148,7 +1148,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 0
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 5
   m_TargetDisplay: 0
 --- !u!224 &1941089047
 RectTransform:
@@ -1180,15 +1180,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 491215386194048796, guid: 85ff8a588b3b7b648803491fd89e3e65, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -2.2750988
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 491215386194048796, guid: 85ff8a588b3b7b648803491fd89e3e65, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 8.9056584e-10
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 491215386194048796, guid: 85ff8a588b3b7b648803491fd89e3e65, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 1.3747953
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 491215386194048796, guid: 85ff8a588b3b7b648803491fd89e3e65, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1222,6 +1222,10 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4678049061785312291, guid: 85ff8a588b3b7b648803491fd89e3e65, type: 3}
+      propertyPath: m_Constraints
+      value: 88
+      objectReference: {fileID: 0}
     - target: {fileID: 4751848231811284406, guid: 85ff8a588b3b7b648803491fd89e3e65, type: 3}
       propertyPath: m_Name
       value: Player 1
@@ -1238,17 +1242,6 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 1989342910}
   m_SourcePrefab: {fileID: 100100000, guid: 85ff8a588b3b7b648803491fd89e3e65, type: 3}
---- !u!114 &1989342907 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2895788074766242944, guid: 85ff8a588b3b7b648803491fd89e3e65, type: 3}
-  m_PrefabInstance: {fileID: 1989342906}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
 --- !u!1 &1989342908 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4238761324274588180, guid: 85ff8a588b3b7b648803491fd89e3e65, type: 3}
@@ -1272,7 +1265,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerDirection
   aimArrow: {fileID: 1989342908}
-  forceBar: {fileID: 1989342907}
+  forceBar: {fileID: 770131940}
   rotationSpeed: 180
   minThrowForce: 3
   maxThrowForce: 20
@@ -1366,7 +1359,7 @@ Transform:
   m_GameObject: {fileID: 2021877584}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.28, y: 1.79, z: -9.7}
+  m_LocalPosition: {x: -2.17, y: 3.89, z: -53}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
