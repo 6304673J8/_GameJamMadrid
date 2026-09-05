@@ -1,13 +1,15 @@
 using UnityEngine;
 using UnityEngine.InputSystem; // Required for the new Input System
 
-
 public class crawlPlayerMovement : MonoBehaviour
 {
     [Header("Movement Settings")]
-    // Note: Since Drag will be high, you will need a larger forwardForce value (e.g., 15 to 30)
     public float forwardForce = 20f;
     public float turnDegrees = 15f;
+
+    [Header("Anti-Spam Settings")]
+    public float inputCooldown = 0.2f; 
+    private float nextAllowedInputTime = 0f;
 
     private Rigidbody rb;
 
@@ -15,35 +17,51 @@ public class crawlPlayerMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         
-        // Dynamic safety check: Ensure there is at least some Drag set up in the Rigidbody
+        // Configurar la fricción lineal si está por defecto
         if (rb.linearDamping == 0)
         {
-            rb.linearDamping = 5f; // Set a default friction value if it was left at 0
+            rb.linearDamping = 5f; 
         }
+
+        // Evitar que el personaje se vuelque o rote en ejes no deseados al chocar
+        rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
     }
 
     void Update()
     {
+        if (Time.time < nextAllowedInputTime) return;
+
         Keyboard keyboard = Keyboard.current;
         if (keyboard == null) return;
 
-        if (keyboard.aKey.wasPressedThisFrame)
+        bool pressedA = keyboard.aKey.wasPressedThisFrame;
+        bool pressedD = keyboard.dKey.wasPressedThisFrame;
+
+        if (pressedA && pressedD) return;
+
+        if (pressedA)
         {
             Crawl(-turnDegrees);
+            TriggerCooldown();
         }
-        else if (keyboard.dKey.wasPressedThisFrame)
+        else if (pressedD)
         {
             Crawl(turnDegrees);
+            TriggerCooldown();
         }
     }
 
     void Crawl(float turnAngle)
     {
-        // 1. Apply instant rotation on the Y axis
+        // 1. Aplicar rotación en el eje Y
         transform.Rotate(0f, turnAngle, 0f);
 
-        // 2. Apply a strong forward impulse
-        // The high Rigidbody Drag will instantly start slowing the player down right after this impulse
+        // 2. Aplicar impulso hacia adelante
         rb.AddForce(transform.forward * forwardForce, ForceMode.Impulse);
+    }
+
+    void TriggerCooldown()
+    {
+        nextAllowedInputTime = Time.time + inputCooldown;
     }
 }
