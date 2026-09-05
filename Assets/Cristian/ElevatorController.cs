@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class ElevatorController : MonoBehaviour
 {
@@ -22,12 +23,24 @@ public class ElevatorController : MonoBehaviour
 
     private bool isTriggered = false;
 
+    [SerializeField] private int nextSceneToLoad = 0;
+
+    void Start()
+    {
+        isTriggered = false;
+        if (nextSceneToLoad == 0)
+            nextSceneToLoad = SceneManager.GetActiveScene().buildIndex + 1;
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         // Check if the colliding object is tagged as the Player and hasn't triggered yet
-        if (other.CompareTag("Player") && !isTriggered)
+        //if (other.CompareTag("Player") && !isTriggered)
+        if (other.CompareTag("Player"))
         {
+            Debug.Log("aaaaaaaaaaaaaaa");
             StartCoroutine(PlayElevatorSequence());
+            TransitionManager.singleton.GoToSceneAsync(nextSceneToLoad);
         }
     }
 

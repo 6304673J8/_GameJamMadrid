@@ -860,7 +860,7 @@ GameObject:
   - component: {fileID: 8829023025954918005}
   m_Layer: 0
   m_Name: Capsule
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1004,8 +1004,10 @@ MonoBehaviour:
   aimArrow: {fileID: 2419232761814302380}
   crawlPlayer: {fileID: 0}
   visualObject: {fileID: 0}
+  playerCanvas: {fileID: 0}
   visualsPlayer: {fileID: 2209911061209990328}
   forceBar: {fileID: 6711040700405670567}
+  forceBarDeco: {fileID: 0}
   animator: {fileID: 6759222426395214252}
   flyingParameter: IsFlying
   spinSpeedParameter: SpinSpeed
@@ -1015,6 +1017,7 @@ MonoBehaviour:
   minThrowForce: 3
   maxThrowForce: 20
   powerChangeSpeed: 1
+  canvasHeight: 1.5
   stopSpeed: 0.15
   stopTime: 0.5
   wetForce: 2
