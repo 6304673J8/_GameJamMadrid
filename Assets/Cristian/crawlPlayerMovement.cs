@@ -5,9 +5,13 @@ using UnityEngine.InputSystem; // Required for the new Input System
 public class crawlPlayerMovement : MonoBehaviour
 {
     [Header("Movement Settings")]
-    // Note: Since Drag will be high, you will need a larger forwardForce value (e.g., 15 to 30)
     public float forwardForce = 20f;
     public float turnDegrees = 15f;
+
+    [Header("Anti-Spam Settings")]
+    // Short delay in seconds before the player can crawl again (e.g., 0.2 seconds)
+    public float inputCooldown = 0.2f; 
+    private float nextAllowedInputTime = 0f;
 
     private Rigidbody rb;
 
@@ -15,25 +19,37 @@ public class crawlPlayerMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         
-        // Dynamic safety check: Ensure there is at least some Drag set up in the Rigidbody
         if (rb.linearDamping == 0)
         {
-            rb.linearDamping = 5f; // Set a default friction value if it was left at 0
+            rb.linearDamping = 5f; // Ensures friction is applied
         }
     }
 
     void Update()
     {
+        // Check if the short cooldown delay has passed
+        if (Time.time < nextAllowedInputTime) return;
+
         Keyboard keyboard = Keyboard.current;
         if (keyboard == null) return;
 
-        if (keyboard.aKey.wasPressedThisFrame)
+        // Read the exact status of both keys this frame
+        bool pressedA = keyboard.aKey.wasPressedThisFrame;
+        bool pressedD = keyboard.dKey.wasPressedThisFrame;
+
+        // Block input if BOTH keys are pressed at the exact same time
+        if (pressedA && pressedD) return;
+
+        // Process only one key at a time
+        if (pressedA)
         {
             Crawl(-turnDegrees);
+            TriggerCooldown();
         }
-        else if (keyboard.dKey.wasPressedThisFrame)
+        else if (pressedD)
         {
             Crawl(turnDegrees);
+            TriggerCooldown();
         }
     }
 
@@ -43,7 +59,12 @@ public class crawlPlayerMovement : MonoBehaviour
         transform.Rotate(0f, turnAngle, 0f);
 
         // 2. Apply a strong forward impulse
-        // The high Rigidbody Drag will instantly start slowing the player down right after this impulse
         rb.AddForce(transform.forward * forwardForce, ForceMode.Impulse);
+    }
+
+    void TriggerCooldown()
+    {
+        // Set the timestamp for when the player is allowed to press a key again
+        nextAllowedInputTime = Time.time + inputCooldown;
     }
 }
