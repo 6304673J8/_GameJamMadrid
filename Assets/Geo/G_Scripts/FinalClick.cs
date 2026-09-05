@@ -8,6 +8,7 @@ public class FinalClick : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private GameObject aimArrow;
+    [SerializeField] private SpriteRenderer visualsPlayer;
     [SerializeField] private Image forceBar;
 
     [Header("Arrow")]
@@ -30,6 +31,7 @@ public class FinalClick : MonoBehaviour
     {
         Idle,
         SelectingDirection,
+        ChargingPower,
         Flying
     }
 
@@ -68,13 +70,31 @@ public class FinalClick : MonoBehaviour
     {
         HandleInput();
 
+        // Arrow rotates while mouse button is held
         if (currentState == State.SelectingDirection)
         {
             RotateArrow();
+        }
+
+        // Power bar moves after releasing the mouse
+        if (currentState == State.ChargingPower)
+        {
             UpdatePowerBar();
         }
 
         CheckIfStopped();
+    }
+
+
+    private void LateUpdate()
+    {
+        if (aimArrow != null && aimArrow.activeSelf)
+            aimArrow.transform.position = transform.position + Vector3.up * 0.1f; 
+        if (visualsPlayer != null)
+        {
+            visualsPlayer.transform.position =
+                transform.position + Vector3.up * 0.1f;
+        }
     }
 
     // =========================================================
@@ -86,32 +106,41 @@ public class FinalClick : MonoBehaviour
         if (Mouse.current == null)
             return;
 
-        if (!Mouse.current.leftButton.wasPressedThisFrame)
-            return;
+        // =====================================================
+        // MOUSE DOWN
+        // =====================================================
 
-        // -----------------------------------------------------
-        // FIRST CLICK
-        // Arrow appears and power bar starts
-        // -----------------------------------------------------
-
-        if (currentState == State.Idle)
+        if (Mouse.current.leftButton.wasPressedThisFrame)
         {
-            StartDirectionSelection();
+            // First click: start selecting direction
+            if (currentState == State.Idle)
+            {
+                StartDirectionSelection();
+            }
+
+            // Second click: throw
+            else if (currentState == State.ChargingPower)
+            {
+                Throw();
+            }
         }
 
-        // -----------------------------------------------------
-        // SECOND CLICK
-        // Lock direction and throw
-        // -----------------------------------------------------
+        // =====================================================
+        // MOUSE UP
+        // =====================================================
 
-        else if (currentState == State.SelectingDirection)
+        if (Mouse.current.leftButton.wasReleasedThisFrame)
         {
-            Throw();
+            // Release after selecting direction
+            if (currentState == State.SelectingDirection)
+            {
+                StartPowerSelection();
+            }
         }
     }
 
     // =========================================================
-    // FIRST CLICK
+    // FIRST CLICK / MOUSE DOWN
     // =========================================================
 
     private void StartDirectionSelection()
@@ -129,14 +158,157 @@ public class FinalClick : MonoBehaviour
             aimArrow.transform.position =
                 transform.position + Vector3.up * 0.1f;
 
-            // Start from forward direction
+            // Start facing forward
             aimArrow.transform.rotation =
                 Quaternion.LookRotation(Vector3.forward);
         }
 
         // -----------------------------
-        // Start power bar
+        // Make player visuals match arrow
         // -----------------------------
+
+        /*if (visualsPlayer != null && aimArrow != null)
+        {
+            visualsPlayer.transform.rotation =
+                aimArrow.transform.rotation;
+        }*/
+
+        if (visualsPlayer != null)
+            visualsPlayer.transform.position = transform.position + Vector3.up * 0.1f;
+
+            // -----------------------------
+            // Hide power bar
+            // -----------------------------
+
+        if (forceBar != null)
+        {
+            forceBar.fillAmount = 0f;
+            forceBar.gameObject.SetActive(false);
+        }
+    }
+
+
+    // =========================================================
+    // ARROW ROTATION
+    // =========================================================
+
+
+    private void RotateArrow()
+    {
+        if (aimArrow == null)
+            return;
+
+        // Rotate arrow clockwise
+        aimArrow.transform.Rotate(
+            Vector3.up,
+            rotationSpeed * Time.deltaTime,
+            Space.World
+        );
+
+        // Rotate player visual in the OPPOSITE direction
+        if (visualsPlayer != null)
+        {
+            visualsPlayer.transform.Rotate(
+                Vector3.up,
+                -rotationSpeed * Time.deltaTime,
+                Space.World
+            );
+        }
+    }
+
+    // =========================================================
+    // SECOND CLICK
+    // THROW
+    // =========================================================
+
+    private void Throw()
+    {
+        currentState = State.Flying;
+
+        // -----------------------------
+        // GET OPPOSITE ARROW DIRECTION
+        // -----------------------------
+
+        if (aimArrow != null)
+        {
+            // Throw opposite to the arrow
+            throwDirection = -aimArrow.transform.forward;
+        }
+
+        throwDirection.y = 0f;
+
+        if (throwDirection.sqrMagnitude > 0.001f)
+        {
+            throwDirection.Normalize();
+        }
+
+        // -----------------------------
+        // HIDE ARROW
+        // -----------------------------
+
+        if (aimArrow != null)
+        {
+            aimArrow.SetActive(false);
+        }
+
+        // -----------------------------
+        // HIDE POWER BAR
+        // -----------------------------
+
+        if (forceBar != null)
+        {
+            forceBar.fillAmount = 0f;
+            forceBar.gameObject.SetActive(false);
+        }
+
+        // -----------------------------
+        // CALCULATE FORCE
+        // -----------------------------
+
+        float throwForce = Mathf.Lerp(
+            minThrowForce,
+            maxThrowForce,
+            powerAmount
+        );
+
+        // -----------------------------
+        // RESET VELOCITY
+        // -----------------------------
+
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+
+        // -----------------------------
+        // APPLY IMPULSE
+        // -----------------------------
+
+        rb.AddForce(
+            throwDirection * throwForce,
+            ForceMode.Impulse
+        );
+
+        // -----------------------------
+        // RESET POWER
+        // -----------------------------
+
+        powerAmount = 0f;
+        powerIncreasing = true;
+
+        stopTimer = 0f;
+    }
+
+
+    // =========================================================
+    // MOUSE UP
+    // LOCK DIRECTION + START POWER BAR
+    // =========================================================
+
+    private void StartPowerSelection()
+    {
+        currentState = State.ChargingPower;
+
+        // Arrow stays visible but stops rotating.
+        // Its current forward direction is now locked.
 
         powerAmount = 0f;
         powerIncreasing = true;
@@ -149,24 +321,8 @@ public class FinalClick : MonoBehaviour
     }
 
     // =========================================================
-    // ROTATE ARROW
-    // =========================================================
-
-    private void RotateArrow()
-    {
-        if (aimArrow == null)
-            return;
-
-        aimArrow.transform.Rotate(
-            Vector3.up,
-            rotationSpeed * Time.deltaTime,
-            Space.World
-        );
-    }
-
-    // =========================================================
     // POWER BAR
-    // Goes 0 -> 1 -> 0 -> 1...
+    // 0 -> 1 -> 0 -> 1...
     // =========================================================
 
     private void UpdatePowerBar()
@@ -193,75 +349,14 @@ public class FinalClick : MonoBehaviour
         }
 
         if (forceBar != null)
+        {
             forceBar.fillAmount = powerAmount;
-    }
-
-    // =========================================================
-    // SECOND CLICK
-    // THROW
-    // =========================================================
-
-    private void Throw()
-    {
-        currentState = State.Flying;
-
-        // -----------------------------
-        // Save arrow direction
-        // -----------------------------
-
-        if (aimArrow != null)
-        {
-            throwDirection = aimArrow.transform.forward;
         }
-
-        throwDirection.y = 0f;
-        throwDirection.Normalize();
-
-        // -----------------------------
-        // Hide UI
-        // -----------------------------
-
-        if (aimArrow != null)
-            aimArrow.SetActive(false);
-
-        if (forceBar != null)
-        {
-            forceBar.fillAmount = 0f;
-            forceBar.gameObject.SetActive(false);
-        }
-
-        // -----------------------------
-        // Calculate force
-        // -----------------------------
-
-        float throwForce = Mathf.Lerp(
-            minThrowForce,
-            maxThrowForce,
-            powerAmount
-        );
-
-        // -----------------------------
-        // Reset velocity
-        // -----------------------------
-
-        rb.linearVelocity = Vector3.zero;
-        rb.angularVelocity = Vector3.zero;
-
-        // -----------------------------
-        // Apply impulse
-        // -----------------------------
-
-        rb.AddForce(
-            throwDirection * throwForce,
-            ForceMode.Impulse
-        );
-
-        // Reset power
-        powerAmount = 0f;
-        powerIncreasing = true;
-
-        stopTimer = 0f;
     }
+    
+    // =========================================================
+    // CHECK IF PLAYER STOPPED
+    // =========================================================
 
     private void CheckIfStopped()
     {
@@ -298,5 +393,27 @@ public class FinalClick : MonoBehaviour
 
         stopTimer = 0f;
     }
-}
 
+    private void UpdateSpriteDirection()
+    {
+        if (visualsPlayer == null || aimArrow == null)
+            return;
+
+        Vector3 arrowDirection = aimArrow.transform.forward;
+
+        // We want the sprite to face OPPOSITE the arrow.
+        Vector3 characterDirection = -arrowDirection;
+
+        // If the character is facing right by default:
+        // flip the sprite when its desired direction is left.
+        if (characterDirection.x < 0f)
+        {
+            visualsPlayer.flipX = true;
+        }
+        else
+        {
+            visualsPlayer.flipX = false;
+        }
+    }
+
+}
