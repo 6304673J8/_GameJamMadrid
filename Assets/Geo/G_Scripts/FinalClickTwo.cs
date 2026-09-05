@@ -16,8 +16,11 @@ public class FinalClickTwo : MonoBehaviour
     [SerializeField] private GameObject aimArrow;
     [SerializeField] private GameObject crawlPlayer;
     [SerializeField] private GameObject visualObject;
+    [SerializeField] private RectTransform playerCanvas;
     [SerializeField] private SpriteRenderer visualsPlayer;
+
     [SerializeField] private Image forceBar;
+    [SerializeField] private Image forceBarDeco;
 
     [Header("Animation")]
     [SerializeField] private Animator animator;
@@ -37,6 +40,7 @@ public class FinalClickTwo : MonoBehaviour
 
     [Header("Power Bar")]
     [SerializeField] private float powerChangeSpeed = 1f;
+    [SerializeField] private float canvasHeight = 1.5f;
 
     [Header("Physics")]
     [SerializeField] private float stopSpeed = 0.15f;
@@ -85,6 +89,7 @@ public class FinalClickTwo : MonoBehaviour
 
             forceBar.fillAmount = 0f;
             forceBar.gameObject.SetActive(false);
+            forceBarDeco.gameObject.SetActive(false);
         }
 
         // Make sure animation starts in Idle
@@ -123,6 +128,12 @@ public class FinalClickTwo : MonoBehaviour
         {
             visualsPlayer.transform.position =
                 transform.position + Vector3.up * 0.1f;
+        }
+
+        if (playerCanvas != null)
+        {
+            playerCanvas.position =
+                transform.position + Vector3.up * canvasHeight;
         }
     }
 
@@ -163,6 +174,7 @@ public class FinalClickTwo : MonoBehaviour
             // Release after selecting direction
             if (currentState == State.SelectingDirection)
             {
+                aimArrow.SetActive(false);
                 StartPowerSelection();
             }
         }
@@ -210,6 +222,7 @@ public class FinalClickTwo : MonoBehaviour
         {
             forceBar.fillAmount = 0f;
             forceBar.gameObject.SetActive(false);
+            forceBarDeco.gameObject.SetActive(false);
         }
     }
 
@@ -232,12 +245,18 @@ public class FinalClickTwo : MonoBehaviour
         // Rotate player visual in opposite direction
         if (visualsPlayer != null)
         {
+            visualsPlayer.transform.rotation = aimArrow.transform.rotation;
+        }
+
+        UpdateSpriteDirection();
+        /* if (visualsPlayer != null)
+        {
             visualsPlayer.transform.Rotate(
                 Vector3.up,
                 -rotationSpeed * Time.deltaTime,
                 Space.World
             );
-        }
+        }*/
     }
 
     // =========================================================
@@ -255,7 +274,7 @@ public class FinalClickTwo : MonoBehaviour
         if (aimArrow != null)
         {
             // Throw opposite to the arrow
-            throwDirection = -aimArrow.transform.forward;
+            throwDirection = aimArrow.transform.forward;
         }
 
         throwDirection.y = 0f;
@@ -273,7 +292,6 @@ public class FinalClickTwo : MonoBehaviour
         {
             aimArrow.SetActive(false);
         }
-
         // -----------------------------
         // HIDE POWER BAR
         // -----------------------------
@@ -282,6 +300,7 @@ public class FinalClickTwo : MonoBehaviour
         {
             forceBar.fillAmount = 0f;
             forceBar.gameObject.SetActive(false);
+            forceBarDeco.gameObject.SetActive(false);
         }
 
         // -----------------------------
@@ -353,6 +372,7 @@ public class FinalClickTwo : MonoBehaviour
         {
             forceBar.fillAmount = 0f;
             forceBar.gameObject.SetActive(true);
+            forceBarDeco.gameObject.SetActive(true);
         }
     }
 
@@ -557,7 +577,7 @@ public class FinalClickTwo : MonoBehaviour
             return;
 
         Vector3 arrowDirection = aimArrow.transform.forward;
-
+        Debug.Log("Rotando Loco");
         // Character faces opposite arrow.
         Vector3 characterDirection = -arrowDirection;
 
