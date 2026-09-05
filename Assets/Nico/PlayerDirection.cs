@@ -8,7 +8,7 @@ public class PlayerDirection : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private GameObject aimArrow;
-    [SerializeField] private Image forceBar;
+    [SerializeField] private Slider forceBar;
 
     [Header("Arrow")]
     [SerializeField] private float rotationSpeed = 180f;
@@ -43,7 +43,7 @@ public class PlayerDirection : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
 
-        // La flecha empieza visible y girando
+        // La flecha empieza visible
         if (aimArrow != null)
         {
             aimArrow.SetActive(true);
@@ -59,7 +59,9 @@ public class PlayerDirection : MonoBehaviour
         if (forceBar != null)
         {
             forceBar.gameObject.SetActive(false);
-            forceBar.fillAmount = 0f;
+            forceBar.minValue = 0f;
+            forceBar.maxValue = 1f;
+            forceBar.value = 0f;
         }
     }
 
@@ -91,23 +93,18 @@ public class PlayerDirection : MonoBehaviour
         if (Mouse.current == null)
             return;
 
-        // Solo nos interesa CUANDO SE HACE CLICK
         if (!Mouse.current.leftButton.wasPressedThisFrame)
             return;
 
-        // =====================================================
-        // CLICK 1 → FIJAR DIRECCIÓN
-        // =====================================================
-
+        // CLICK 1
+        // Fijar dirección y comenzar medidor
         if (currentState == State.SelectingDirection)
         {
             StartCharging();
         }
 
-        // =====================================================
-        // CLICK 2 → FIJAR POTENCIA Y LANZAR
-        // =====================================================
-
+        // CLICK 2
+        // Elegir potencia y lanzar
         else if (currentState == State.Charging)
         {
             Throw();
@@ -131,12 +128,13 @@ public class PlayerDirection : MonoBehaviour
     }
 
     // =========================================================
-    // CLICK 1: LOCK DIRECTION + START CHARGING
+    // CLICK 1
+    // FIJAR DIRECCIÓN + COMENZAR POTENCIA
     // =========================================================
 
     private void StartCharging()
     {
-        // Guardamos la dirección actual de la flecha
+        // Guardamos la dirección de la flecha
         throwDirection = aimArrow.transform.forward;
 
         // Nos aseguramos de que sea horizontal
@@ -154,21 +152,22 @@ public class PlayerDirection : MonoBehaviour
         if (forceBar != null)
         {
             forceBar.gameObject.SetActive(true);
-            forceBar.fillAmount = 0f;
+            forceBar.value = 0f;
         }
 
         Debug.Log("Dirección elegida: " + throwDirection);
     }
 
     // =========================================================
-    // POWER BAR: UP AND DOWN
+    // BARRA DE POTENCIA
+    // SUBE Y BAJA
     // =========================================================
 
     private void ChargeForce()
     {
         if (chargingUp)
         {
-            // La barra SUBE
+            // SUBE
             chargeAmount += Time.deltaTime / chargeTime;
 
             if (chargeAmount >= 1f)
@@ -179,7 +178,7 @@ public class PlayerDirection : MonoBehaviour
         }
         else
         {
-            // La barra BAJA
+            // BAJA
             chargeAmount -= Time.deltaTime / chargeTime;
 
             if (chargeAmount <= 0f)
@@ -189,65 +188,72 @@ public class PlayerDirection : MonoBehaviour
             }
         }
 
-        // Actualizamos la barra visual
+        // Movemos el Handle del Slider
         if (forceBar != null)
         {
-            forceBar.fillAmount = chargeAmount;
+            forceBar.value = chargeAmount;
         }
     }
 
     // =========================================================
-    // CLICK 2: LOCK POWER + THROW
+    // CLICK 2
+    // ELEGIR POTENCIA + LANZAR
     // =========================================================
 
     private void Throw()
     {
-        // Guardamos el porcentaje antes de cambiar nada
+        // Guardamos la potencia exacta
         float powerPercentage = chargeAmount * 100f;
 
-        Debug.Log("Potencia elegida: " + powerPercentage.ToString("F1") + "%");
-
-        // Convertimos el porcentaje en fuerza real
+        // Calculamos la fuerza real
         float throwForce = Mathf.Lerp(
             minThrowForce,
             maxThrowForce,
             chargeAmount
         );
 
-        Debug.Log("Fuerza del lanzamiento: " + throwForce.ToString("F2"));
+        Debug.Log(
+            "Potencia elegida: " +
+            powerPercentage.ToString("F1") +
+            "%"
+        );
+
+        Debug.Log(
+            "Fuerza del lanzamiento: " +
+            throwForce.ToString("F2")
+        );
 
         // Cambiamos al estado de vuelo
         currentState = State.Flying;
 
-        // Escondemos la flecha
+        // Escondemos flecha
         if (aimArrow != null)
         {
             aimArrow.SetActive(false);
         }
 
-        // Escondemos la barra
+        // Escondemos barra
         if (forceBar != null)
         {
             forceBar.gameObject.SetActive(false);
         }
 
-        // Detenemos cualquier movimiento anterior
+        // Detenemos movimiento anterior
         rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
 
-        // LANZAMOS
+        // LANZAMIENTO
         rb.AddForce(
             throwDirection * throwForce,
             ForceMode.Impulse
         );
 
-        // Reiniciamos
         chargeAmount = 0f;
         stopTimer = 0f;
     }
 
     // =========================================================
-    // DETECT WHEN PLAYER STOPS
+    // COMPROBAR SI EL JUGADOR SE DETUVO
     // =========================================================
 
     private void CheckIfStopped()
@@ -273,7 +279,7 @@ public class PlayerDirection : MonoBehaviour
     }
 
     // =========================================================
-    // RETURN TO DIRECTION SELECTION
+    // VOLVER A ELEGIR DIRECCIÓN
     // =========================================================
 
     private void StopFlying()
@@ -283,10 +289,10 @@ public class PlayerDirection : MonoBehaviour
 
         stopTimer = 0f;
 
-        // Volvemos a permitir elegir dirección
+        // Volvemos a seleccionar dirección
         currentState = State.SelectingDirection;
 
-        // Mostramos la flecha otra vez
+        // Mostrar flecha
         if (aimArrow != null)
         {
             aimArrow.SetActive(true);
@@ -295,7 +301,7 @@ public class PlayerDirection : MonoBehaviour
                 transform.position + Vector3.up * 0.1f;
         }
 
-        // Reiniciamos la potencia
+        // Reiniciar potencia
         chargeAmount = 0f;
         chargingUp = true;
     }
