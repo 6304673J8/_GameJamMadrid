@@ -69,13 +69,13 @@ public class PlayerDirection : MonoBehaviour
     {
         HandleInput();
 
-        // La flecha gira hasta el primer clic
+        // La flecha gira mientras elegimos dirección
         if (currentState == State.SelectingDirection)
         {
             RotateArrow();
         }
 
-        // La barra sube y baja después del primer clic
+        // La potencia se mueve mientras mantenemos pulsado
         if (currentState == State.Charging)
         {
             ChargeForce();
@@ -93,21 +93,28 @@ public class PlayerDirection : MonoBehaviour
         if (Mouse.current == null)
             return;
 
-        if (!Mouse.current.leftButton.wasPressedThisFrame)
-            return;
+        // =====================================================
+        // CLICK → FIJAR DIRECCIÓN
+        // =====================================================
 
-        // CLICK 1
-        // Fijar dirección y comenzar medidor
-        if (currentState == State.SelectingDirection)
+        if (Mouse.current.leftButton.wasPressedThisFrame)
         {
-            StartCharging();
+            if (currentState == State.SelectingDirection)
+            {
+                StartCharging();
+            }
         }
 
-        // CLICK 2
-        // Elegir potencia y lanzar
-        else if (currentState == State.Charging)
+        // =====================================================
+        // SOLTAR → LANZAR
+        // =====================================================
+
+        if (Mouse.current.leftButton.wasReleasedThisFrame)
         {
-            Throw();
+            if (currentState == State.Charging)
+            {
+                Throw();
+            }
         }
     }
 
@@ -128,7 +135,7 @@ public class PlayerDirection : MonoBehaviour
     }
 
     // =========================================================
-    // CLICK 1
+    // CLICK
     // FIJAR DIRECCIÓN + COMENZAR POTENCIA
     // =========================================================
 
@@ -141,7 +148,7 @@ public class PlayerDirection : MonoBehaviour
         throwDirection.y = 0f;
         throwDirection.Normalize();
 
-        // Reiniciamos la potencia
+        // Reiniciamos potencia
         chargeAmount = 0f;
         chargingUp = true;
 
@@ -159,15 +166,15 @@ public class PlayerDirection : MonoBehaviour
     }
 
     // =========================================================
-    // BARRA DE POTENCIA
-    // SUBE Y BAJA
+    // POTENCIA
+    // SUBE Y BAJA MIENTRAS MANTENEMOS EL CLIC
     // =========================================================
 
     private void ChargeForce()
     {
         if (chargingUp)
         {
-            // SUBE
+            // La barra SUBE
             chargeAmount += Time.deltaTime / chargeTime;
 
             if (chargeAmount >= 1f)
@@ -178,7 +185,7 @@ public class PlayerDirection : MonoBehaviour
         }
         else
         {
-            // BAJA
+            // La barra BAJA
             chargeAmount -= Time.deltaTime / chargeTime;
 
             if (chargeAmount <= 0f)
@@ -196,13 +203,13 @@ public class PlayerDirection : MonoBehaviour
     }
 
     // =========================================================
-    // CLICK 2
+    // SOLTAR CLIC
     // ELEGIR POTENCIA + LANZAR
     // =========================================================
 
     private void Throw()
     {
-        // Guardamos la potencia exacta
+        // Guardamos la potencia exacta en el momento de soltar
         float powerPercentage = chargeAmount * 100f;
 
         // Calculamos la fuerza real
@@ -242,7 +249,7 @@ public class PlayerDirection : MonoBehaviour
         rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
 
-        // LANZAMIENTO
+        // LANZAMOS
         rb.AddForce(
             throwDirection * throwForce,
             ForceMode.Impulse
@@ -292,7 +299,7 @@ public class PlayerDirection : MonoBehaviour
         // Volvemos a seleccionar dirección
         currentState = State.SelectingDirection;
 
-        // Mostrar flecha
+        // Mostramos la flecha
         if (aimArrow != null)
         {
             aimArrow.SetActive(true);
@@ -301,7 +308,7 @@ public class PlayerDirection : MonoBehaviour
                 transform.position + Vector3.up * 0.1f;
         }
 
-        // Reiniciar potencia
+        // Reiniciamos potencia
         chargeAmount = 0f;
         chargingUp = true;
     }
