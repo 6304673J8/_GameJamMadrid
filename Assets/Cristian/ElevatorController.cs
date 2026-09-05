@@ -7,8 +7,8 @@ public class ElevatorController : MonoBehaviour
     [Header("Animation Settings")]
     [Tooltip("The Animator component controlling the elevator doors.")]
     public Animator elevatorAnimator;
-    [Tooltip("The exact name of the door-opening animation state in the Animator.")]
-    public string animationName = "OpenDoors";
+    [Tooltip("The exact name of the Trigger parameter in the Animator to open the doors.")]
+    public string openTriggerName = "OpenDoors";
 
     [Header("Audio Settings")]
     [Tooltip("The AudioSource component used to play the sound.")]
@@ -17,10 +17,9 @@ public class ElevatorController : MonoBehaviour
     public AudioClip openSound;
 
     [Header("Timing Settings")]
-    [Tooltip("Seconds to wait after the sound plays before the animation starts.")]
-    public float delayDuration = 1.0f;
+    [Tooltip("Seconds to wait after the sound plays before the doors start opening.")]
+    public float delayBeforeOpen = 1.0f;
 
-    // Internal state tracking to prevent multiple triggers at the same time
     private bool isTriggered = false;
 
     private void OnTriggerEnter(Collider other)
@@ -28,30 +27,27 @@ public class ElevatorController : MonoBehaviour
         // Check if the colliding object is tagged as the Player and hasn't triggered yet
         if (other.CompareTag("Player") && !isTriggered)
         {
-            StartCoroutine(PlayOpeningSequence());
+            StartCoroutine(PlayElevatorSequence());
         }
     }
 
-    private IEnumerator PlayOpeningSequence()
+    private IEnumerator PlayElevatorSequence()
     {
         isTriggered = true;
 
-        // 1. Play the audio clip if both the source and clip are assigned
+        // 1. Play the door opening sound effect
         if (audioSource != null && openSound != null)
         {
             audioSource.PlayOneShot(openSound);
         }
 
-        // 2. Wait for the specified delay duration
-        yield return new WaitForSeconds(delayDuration);
+        // 2. Wait before opening the doors
+        yield return new WaitForSeconds(delayBeforeOpen);
 
-        // 3. Play the animation state directly by name
+        // 3. Trigger the animation using the Animator parameter
         if (elevatorAnimator != null)
         {
-            elevatorAnimator.Play(animationName);
-            
-            // NOTE: If you prefer using an Animator Trigger parameter instead of the state name, 
-            // you can comment out the line above and use: elevatorAnimator.SetTrigger("YourTriggerName");
+            elevatorAnimator.SetTrigger(openTriggerName);
         }
     }
 
