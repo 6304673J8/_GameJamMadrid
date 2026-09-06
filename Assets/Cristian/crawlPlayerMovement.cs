@@ -11,11 +11,16 @@ public class crawlPlayerMovement : MonoBehaviour
     public float inputCooldown = 0.2f; 
     private float nextAllowedInputTime = 0f;
 
+    [Header("Animation Settings")]
+    public Animator animator;
+
     private Rigidbody rb;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+
+        if (animator == null) animator = GetComponent<Animator>();
         
         // Configurar la fricción lineal si está por defecto
         if (rb.linearDamping == 0)
@@ -42,11 +47,14 @@ public class crawlPlayerMovement : MonoBehaviour
         if (pressedA)
         {
             Crawl(-turnDegrees);
+            animator.SetTrigger("Left");
             TriggerCooldown();
+            
         }
         else if (pressedD)
         {
             Crawl(turnDegrees);
+            animator.SetTrigger("Right");
             TriggerCooldown();
         }
     }
