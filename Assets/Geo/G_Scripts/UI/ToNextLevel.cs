@@ -13,7 +13,6 @@ public class ToNextLevel : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("Cabron");
         //SceneTransitionManager.singleton.GoToSceneAsync(nextSceneToLoad);
         TransitionManager.singleton.GoToSceneAsync(nextSceneToLoad);
     }
