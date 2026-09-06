@@ -3968,7 +3968,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5120842594320875293, guid: a8a1ab089f8320b498643b66b2db4c68, type: 3}
       propertyPath: m_TagString
-      value: Bouncy
+      value: Untagged
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

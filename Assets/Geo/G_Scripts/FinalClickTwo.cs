@@ -508,6 +508,7 @@ public class FinalClickTwo : MonoBehaviour
         }
         if (collision.gameObject.CompareTag("Carpet"))
         {
+            Debug.Log("Me Cai");
             EnterCrawlMode();
         }
 

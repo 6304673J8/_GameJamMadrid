@@ -2126,6 +2126,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7702620089593684441, guid: ad389ab60a9dbef498d21e1463b81bf9, type: 3}
+      propertyPath: maxSpinSpeed
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7702620089593684441, guid: ad389ab60a9dbef498d21e1463b81bf9, type: 3}
       propertyPath: minThrowForce
       value: 10
       objectReference: {fileID: 0}
