@@ -502,6 +502,7 @@ public class FinalClickTwo : MonoBehaviour
 
             if (impactSpeed >= chairModeImpactThreshold)
             {
+                Debug.Log("Me mori");
                 EnterCrawlMode();
             }
         }
