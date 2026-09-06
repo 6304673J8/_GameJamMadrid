@@ -6,8 +6,23 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
-    guid: 99c9720ab356a0642a771bea13969a05
+    path: Assets/Geo/Final/0_LevelMainMenu.unity
+    guid: 18187473d5bbfd64b90d21b5e8ee5032
+  - enabled: 1
+    path: Assets/Geo/Final/1_Level01.unity
+    guid: 450acfe66f97c2c4eb073a5afb1453c6
+  - enabled: 1
+    path: Assets/Geo/Final/2_Level02.unity
+    guid: f7da6557c5ac9754db41d7c64a7dead4
+  - enabled: 1
+    path: Assets/Geo/Final/3_Level03.unity
+    guid: 6267370ecbb27844ca4713019f25cf0e
+  - enabled: 1
+    path: Assets/Geo/Final/4_Level04.unity
+    guid: 47b3474f6240d5949be6dc2f3d5ad5d0
+  - enabled: 1
+    path: Assets/Geo/Final/Testings.unity
+    guid: 2c02e7efcecb9c142a342d0278fcdd68
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0
