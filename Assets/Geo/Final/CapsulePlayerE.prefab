@@ -569,7 +569,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a78c05ecb5b9359409a31f8a70146ed7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FinalClickTwo
-  chairModeImpactThreshold: 8
+  chairModeImpactThreshold: 1.8
   bouncyTag: Bouncy
   aimArrow: {fileID: 8640820221237829484}
   crawlPlayer: {fileID: 656238534327515400}
