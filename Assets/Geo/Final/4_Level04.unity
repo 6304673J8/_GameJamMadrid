@@ -1324,6 +1324,7 @@ MonoBehaviour:
   openSound: {fileID: 8300000, guid: 6540933b639b3654b9d3cb6d05de783e, type: 3}
   delayBeforeOpen: 1
   nextSceneToLoad: 5
+  toNextLevel: {fileID: 0}
 --- !u!1001 &241135258
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2930,7 +2931,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5461c27488b7504f910cdde1f146bb2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ToNextLevel
-  nextSceneToLoad: 3
+  nextSceneToLoad: 7
 --- !u!65 &743999476
 BoxCollider:
   m_ObjectHideFlags: 0

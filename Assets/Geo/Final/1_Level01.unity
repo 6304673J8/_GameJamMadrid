@@ -6210,7 +6210,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5461c27488b7504f910cdde1f146bb2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ToNextLevel
-  nextSceneToLoad: 0
+  nextSceneToLoad: 2
 --- !u!4 &1309689201 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7288816506164657790, guid: 50e9d694213653a4e8d1111b9281bbaf, type: 3}

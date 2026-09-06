@@ -4540,6 +4540,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8dc4d6c3a742de14d8f41c4265c6c8d1, type: 3}
+--- !u!114 &636111722 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1482123841530251267, guid: 9565a4d61611e7e47ba4c9b3e3426eb5, type: 3}
+  m_PrefabInstance: {fileID: 1757878267}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9f1aa5131892764ba964aabe13bc4e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FadeScreen
 --- !u!1001 &641984006
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -9727,7 +9738,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5461c27488b7504f910cdde1f146bb2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ToNextLevel
-  nextSceneToLoad: 2
+  nextSceneToLoad: 3
 --- !u!65 &1416040539
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -10848,7 +10859,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd710b5ec7d42274ba7b70dd76a8250e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TransitionManager
-  fadeScreen: {fileID: 0}
+  fadeScreen: {fileID: 636111722}
 --- !u!1001 &1676166363
 PrefabInstance:
   m_ObjectHideFlags: 0

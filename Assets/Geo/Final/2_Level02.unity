@@ -6756,7 +6756,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5461c27488b7504f910cdde1f146bb2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ToNextLevel
-  nextSceneToLoad: 3
+  nextSceneToLoad: 4
 --- !u!1001 &1318674761
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7312,7 +7312,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5461c27488b7504f910cdde1f146bb2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ToNextLevel
-  nextSceneToLoad: 4
+  nextSceneToLoad: 5
 --- !u!65 &1416040539
 BoxCollider:
   m_ObjectHideFlags: 0
