@@ -9,9 +9,6 @@ public class GameManager : MonoBehaviour
     [Tooltip("Adonde lleva el botón NO.")]
     [SerializeField] private string titleSceneName = "Title_Screen";
 
-    [Tooltip("Primera escena jugable; la carga el futuro botón de jugar.")]
-    [SerializeField] private string firstSceneName = "Mi_Escena_Inicial";
-
     public static GameManager Instance { get; private set; }
 
     public bool HasWon { get; private set; }
@@ -154,30 +151,6 @@ public class GameManager : MonoBehaviour
         }
 
         SceneManager.LoadScene(titleSceneName);
-    }
-
-    // --- Futuro botón de jugar (desde Title_Screen) ---
-
-    public void StartGame()
-    {
-        HasWon = false;
-
-        Time_controller timeController = GetComponent<Time_controller>();
-        if (timeController != null)
-        {
-            timeController.ActivateCafetera();
-            timeController.ResetTimer();
-        }
-
-        if (!Application.CanStreamedLevelBeLoaded(firstSceneName))
-        {
-            Debug.LogWarning(
-                $"GameManager: la escena '{firstSceneName}' no está en Build Settings."
-            );
-            return;
-        }
-
-        SceneManager.LoadScene(firstSceneName);
     }
 
     // --- Métodos públicos para los botones YES / NO ---
